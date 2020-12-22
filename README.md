@@ -13,3 +13,5 @@
 8. php bin/console doctrine:migrations:migrate
 9. php bin/console doctrine:fixtures:load
 10. php bin/console server:run
+
+Требуется версия php 7.4

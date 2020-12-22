@@ -6,8 +6,10 @@
 1. git clone https://github.com/sanctusmorte/alfa-group.git
 2. выставить настройки БД в файле .env
 3. в консоли перейти в папку проекта и выполнить поочердно следующие команды:
-4. php bin/console doctrine:schema:drop --full-database --force
-5. php bin/console doctrine:migrations:diff
-6. php bin/console doctrine:migrations:migrate
-7. php bin/console doctrine:fixtures:load
-8. php bin/console server:run
+4. composer update
+5. composer install
+6. php bin/console doctrine:schema:drop --full-database --force
+7. php bin/console doctrine:migrations:diff
+8. php bin/console doctrine:migrations:migrate
+9. php bin/console doctrine:fixtures:load
+10. php bin/console server:run

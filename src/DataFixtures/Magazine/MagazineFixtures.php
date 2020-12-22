@@ -3,20 +3,14 @@
 namespace App\DataFixtures\Magazine;
 
 use App\DataFixtures\Author\AuthorFixtures;
-use App\DataFixtures\Magazine\MagazineFixturesData;
 use App\Entity\Magazine;
 use App\Repository\AuthorRepository;
-use App\Service\MagazineImageService;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
 class MagazineFixtures extends Fixture implements DependentFixtureInterface
 {
-    /**
-     * @var MagazineImageService
-     */
-    private $magazineImageService;
 
     /**
      * @var array
@@ -30,14 +24,12 @@ class MagazineFixtures extends Fixture implements DependentFixtureInterface
 
     /**
      * MagazineFixtures constructor.
-     * @param MagazineImageService $magazineImageService
      * @param \App\DataFixtures\Magazine\MagazineFixturesData $magazineFixturesData
      * @param AuthorRepository $authorRepository
      */
-    public function __construct(MagazineImageService $magazineImageService, MagazineFixturesData $magazineFixturesData,
+    public function __construct(MagazineFixturesData $magazineFixturesData,
                                 AuthorRepository $authorRepository)
     {
-        $this->magazineImageService = $magazineImageService;
         $this->magazines = $magazineFixturesData->getMagazinesForFixtures();
         $this->authorRepository = $authorRepository;
     }

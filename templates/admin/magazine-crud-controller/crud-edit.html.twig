@@ -1,0 +1,223 @@
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
+{# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
+{% extends ea.templatePath('layout') %}
+{% form_theme edit_form with ea.crud.formThemes only %}
+
+{% trans_default_domain ea.i18n.translationDomain %}
+
+{% block body_id 'ea-edit-' ~ entity.name ~ '-' ~ entity.primaryKeyValue %}
+{% block body_class 'ea-edit ea-edit-' ~ entity.name %}
+
+{% block configured_head_contents %}
+    {{ parent() }}
+    {% for htmlContent in edit_form.vars.ea_crud_form.assets.headContents %}
+        {{ htmlContent|raw }}
+    {% endfor %}
+{% endblock %}
+
+{% block configured_body_contents %}
+    {{ parent() }}
+    {% for htmlContent in edit_form.vars.ea_crud_form.assets.bodyContents %}
+        {{ htmlContent|raw }}
+    {% endfor %}
+{% endblock %}
+
+{% block configured_stylesheets %}
+    {{ parent() }}
+    {% for css_asset in edit_form.vars.ea_crud_form.assets.cssFiles %}
+        <link rel="stylesheet" href="{{ asset(css_asset) }}">
+    {% endfor %}
+{% endblock %}
+
+{% block configured_javascripts %}
+    {{ parent() }}
+    {% for js_asset in edit_form.vars.ea_crud_form.assets.jsFiles %}
+        <script src="{{ asset(js_asset) }}"></script>
+    {% endfor %}
+{% endblock %}
+
+{% block content_title %}
+    {%- apply spaceless -%}
+        {% set default_title = ea.crud.defaultPageTitle('edit', entity.instance)|trans(ea.i18n.translationParameters, 'EasyAdminBundle') %}
+        {% set custom_title = ea.crud.customPageTitle('edit', entity.instance) %}
+        {{ custom_title is null ? default_title|raw : custom_title|trans(ea.i18n.translationParameters)|raw }}
+    {%- endapply -%}
+{% endblock %}
+
+{% block page_actions %}
+    {% for action in entity.actions %}
+        {{ include(action.templatePath, { action: action }, with_context = false) }}
+    {% endfor %}
+{% endblock %}
+
+
+{% block main %}
+    {% block edit_form %}
+
+        <form name="Magazine" method="post" class="ea-edit-form" id="edit-Magazine-form" enctype="multipart/form-data">
+
+            <input type="hidden" name="referrer" value="{{ app.request.uri }}">
+            <div class="content-panel">
+                <div class="content-panel-body with-background without-header without-footer">
+
+                    <div class="my-custom-class-for-errors">
+                        {{ form_errors(edit_form) }}
+                    </div>
+
+                    {{ form_start(edit_form) }}
+                        {% if form_row(edit_form.image) %}
+
+                            <div class="field-text form-group">
+                                <label for="Magazine_image_src" class="form-control-label">Изображение</label>
+                                <img id="Magazine_image_src" style="max-width: 310px;max-height: 465px;" src="{{ edit_form.vars.data.imageUrl }}" alt="">
+                            </div>
+
+                            <div class="field-text form-group">
+                                <label for="Magazine_image" class="form-control-label">Выберите изображение</label>
+                                <div class="form-widget">
+                                    <div class="custom-file">
+                                        <input type="hidden" id="is_image_changed" name="Magazine[is_image_changed]" value="false">
+                                        <input type="hidden" name="Magazine[image_name]" id="Course_image_name">
+                                        <input type="file" id="Magazine_image" name="Magazine[image]" class="custom-file-input">
+                                        <label for="Magazine_image" class="custom-file-label text-left"></label>
+                                    </div>
+                                    <script>
+                                        document.querySelector('#Magazine_image').addEventListener('change', function() {
+                                            $('#is_image_changed').val('true')
+                                            const fileName = this.value.replace('C:\\fakepath\\', '');
+                                            const customInputFileLabel = document.querySelector('#Magazine_image ~ .custom-file-label');
+                                            customInputFileLabel.classList.add('selected');
+                                            customInputFileLabel.innerHTML = fileName;
+                                            $('#Magazine_image_name').val(fileName);
+                                            var tmppath = URL.createObjectURL(event.target.files[0]);
+                                            $("#Magazine_image_src").fadeIn("fast").attr('src',URL.createObjectURL(event.target.files[0]))
+
+                                        });
+                                    </script>
+                                </div>
+                            </div>
+
+                            <div class="field-text form-group">
+                                <label for="Magazine_image" class="form-control-label"></label>
+                                <div class="form-widget">
+                                    <div class="form-error">
+                                        {{ form_errors(edit_form.image) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                        {% endif %}
+                    {{ form_end(edit_form) }}
+                </div>
+            </div>
+
+            <input type="hidden" id="Magazine__token" name="Magazine[_token]" value="{{ edit_form._token.vars.data }}">
+        </form>
+
+
+    {% endblock edit_form %}
+
+    {% block delete_form %}
+        {{ include('@EasyAdmin/crud/includes/_delete_form.html.twig', { entity_id: entity.primaryKeyValue }, with_context = false) }}
+    {% endblock delete_form %}
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+
+    <script type="text/javascript">
+        $(function() {
+            $('.ea-edit-form').areYouSure({ 'message': '{{ 'form.are_you_sure'|trans({}, 'EasyAdminBundle')|e('js') }}' });
+
+            const entityForm = document.querySelector('form.ea-edit-form');
+            const inputFieldsSelector = 'input,select,textarea';
+
+            // Adding visual feedback for invalid fields: any ".form-group" with invalid fields
+            // receives "has-error" class. The class is removed on click on the ".form-group"
+            // itself to support custom/complex fields.
+            entityForm.addEventListener('submit', function(submitEvent) {
+                entityForm.querySelectorAll(inputFieldsSelector).forEach(function (input) {
+                    if (!input.validity.valid) {
+                        const formGroup = input.closest('div.form-group');
+
+                        formGroup.classList.add('has-error');
+
+                        formGroup.addEventListener('click', function onFormGroupClick() {
+                            formGroup.classList.remove('has-error');
+                            formGroup.removeEventListener('click', onFormGroupClick);
+                        });
+                    }
+                });
+
+                const eaEvent = new CustomEvent('ea.form.submit', {
+                    cancelable: true,
+                    detail: { page: 'edit', form: entityForm }
+                });
+                const eaEventResult = document.dispatchEvent(eaEvent);
+                if (false === eaEventResult) {
+                    submitEvent.preventDefault();
+                    submitEvent.stopPropagation();
+                }
+            });
+
+            // forms with tabs require some special treatment for errors. The problem
+            // is when the field with errors is included in a tab not currently visible.
+            // Browser shows this error "An invalid form control with name='...' is not focusable."
+            // So, the user clicks on Submit button, the form is not submitted and the error
+            // is not displayed. This JavaScript code ensures that each tab shows a badge with
+            // the number of errors in it.
+            entityForm.addEventListener('submit', function() {
+                const formTabPanes = entityForm.querySelectorAll('.tab-pane');
+                if (0 === formTabPanes.length) {
+                    return;
+                }
+
+                let firstNavTabItemWithError = null;
+
+                formTabPanes.forEach(function (tabPane) {
+                    let tabPaneNumErrors = 0;
+                    tabPane.querySelectorAll(inputFieldsSelector).forEach(function (input) {
+                        if (!input.validity.valid) {
+                            tabPaneNumErrors++;
+                        }
+                    });
+
+                    let navTabItem = entityForm.querySelector('.nav-item a[href="#' + tabPane.id + '"]');
+                    let existingErrorBadge = navTabItem.querySelector('span.badge.badge-danger');
+                    if (null !== existingErrorBadge) {
+                        navTabItem.removeChild(existingErrorBadge);
+                    }
+
+                    if (tabPaneNumErrors > 0) {
+                        let newErrorBadge = document.createElement('span');
+                        newErrorBadge.classList.add('badge', 'badge-danger');
+                        newErrorBadge.title = 'form.tab.error_badge_title';
+                        newErrorBadge.textContent = tabPaneNumErrors;
+
+                        navTabItem.appendChild(newErrorBadge);
+
+                        if (null === firstNavTabItemWithError) {
+                            firstNavTabItemWithError = navTabItem;
+                        }
+                    }
+                });
+
+                if (firstNavTabItemWithError) {
+                    firstNavTabItemWithError.click();
+                }
+            });
+
+            $('.action-delete').on('click', function(e) {
+                e.preventDefault();
+
+                $('#modal-delete').modal({ backdrop: true, keyboard: true })
+                    .off('click', '#modal-delete-button')
+                    .on('click', '#modal-delete-button', function () {
+                        $('#delete-form').trigger('submit');
+                    });
+            });
+        });
+    </script>
+
+    {{ include('@EasyAdmin/crud/includes/_select2_widget.html.twig') }}
+{% endblock %}

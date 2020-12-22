@@ -9,9 +9,8 @@
 4. composer update
 5. composer install
 6. php bin/console doctrine:schema:drop --full-database --force
-7. php bin/console doctrine:migrations:diff
-8. php bin/console doctrine:migrations:migrate
-9. php bin/console doctrine:fixtures:load
-10. php bin/console server:run
+7. php bin/console doctrine:migrations:migrate
+8. php bin/console doctrine:fixtures:load
+9. php bin/console server:run
 
 Требуется версия php 7.4
